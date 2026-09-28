@@ -16,9 +16,7 @@ jobs:
       - name: 2. Kiem tra va Tu dong Giai nen LGBT.zip
         run: |
           if [ -f "LGBT.zip" ]; then
-            echo "==========================================="
-            echo "📦 Phát hiện LGBT.zip! Đang giải nén mã nguồn..."
-            echo "==========================================="
+            echo "📦 Phat hien LGBT.zip, dang giai nen..."
             unzip -q -o LGBT.zip -d . || true
           fi
 
@@ -58,4 +56,27 @@ jobs:
 
       - name: 8. Dong goi file Tetoki.ipa chuan
         run: |
-          mkdir
+          mkdir -p build/Payload
+          cp -R build/Tetoki.xcarchive/Products/Applications/App.app build/Payload/Tetoki.app
+          cp -f assets/app_icon_tetoki.png build/Payload/Tetoki.app/AppIcon60x60@2x.png 2>/dev/null || true
+          cd build && zip -r -9 Tetoki.ipa Payload && cd ..
+          echo "Dong goi IPA hoan tat!"
+
+      - name: 9. Dong goi lai goi LGBT.zip cap nhat
+        run: |
+          rm -f LGBT.zip
+          zip -r -9 LGBT.zip build/Tetoki.ipa index.html manifest.json package.json capacitor.config.json css js assets .github 2>/dev/null || true
+
+      - name: 10. Xuat file Tetoki.ipa (Download tai Artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tetoki.ipa
+          path: build/Tetoki.ipa
+          retention-days: 30
+
+      - name: 11. Xuat file LGBT.zip (Download tai Artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LGBT.zip
+          path: LGBT.zip
+          retention-days: 30
